@@ -14,7 +14,7 @@ A web-based clone of the board game **Trio**, built with **Bun** for the backend
 To build and run both the backend and frontend with Docker Compose:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ---
