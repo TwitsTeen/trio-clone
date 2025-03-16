@@ -1,0 +1,20 @@
+# Dockerfile for Vite React App
+
+FROM node
+
+WORKDIR /app
+
+# Copy package.json and package-lock.json (or yarn.lock) first to leverage Docker cache
+COPY ./trio_frontend/package.json ./trio_frontend/package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the client files
+COPY ./trio_frontend/ .
+
+# Expose the port that Vite will run on
+EXPOSE 5173
+
+# Build the app and start the development server
+CMD ["npm", "run", "dev", "--", "--host"]

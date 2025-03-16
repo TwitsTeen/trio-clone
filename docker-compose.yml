@@ -1,0 +1,20 @@
+services:
+  vite-app:
+    build:
+      context: .
+      dockerfile: ./trio_frontend/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://bun-server:3000 # API URL for React app to reach Bun server
+    depends_on:
+      - bun-server
+
+  bun-server:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - CLIENT_URL=http://vite-app:5173 # React app's URL for CORS configuration
