@@ -24,7 +24,7 @@ function App() {
         {room === undefined ? (
           "Join a room to view this"
         ) : (
-          <Room room={room} setIsInGame={setIsInGame}></Room>
+          <Room room={room} setIsInGame={setIsInGame} setRoom={setRoom}></Room>
         )}
       </div>
     );

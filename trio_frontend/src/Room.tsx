@@ -4,9 +4,10 @@ import { serverUrl } from "./services/serverService";
 interface RoomProps {
   room: RoomData;
   setIsInGame: (isInGame: boolean) => void;
+  setRoom: (room: RoomData | undefined) => void;
 }
 
-const Room = ({ room, setIsInGame }: RoomProps) => {
+const Room = ({ room, setIsInGame, setRoom }: RoomProps) => {
   async function startGame() {
     try {
       const response = await fetch(`${serverUrl}/rooms/start`, {
@@ -38,6 +39,7 @@ const Room = ({ room, setIsInGame }: RoomProps) => {
       const result = await response.json();
       console.log(result);
       setIsInGame(false);
+      setRoom(undefined);
     } catch (e) {
       console.error("Error making POST request:", e);
     }
