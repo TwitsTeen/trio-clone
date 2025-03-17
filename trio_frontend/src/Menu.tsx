@@ -202,13 +202,22 @@ export default function Menu({
             className="input input-bordered input-primary"
             value={roomCode}
             onChange={(e) => setRoomCode(e.target.value)}
+            disabled={!serverPlayerName}
           />
-          <button className="btn btn-primary" onClick={handleJoinRoom}>
+          <button
+            className="btn btn-primary"
+            onClick={handleJoinRoom}
+            disabled={!serverPlayerName}
+          >
             Join Room
           </button>
         </div>
 
-        <button className="btn btn-secondary" onClick={handleCreateRoom}>
+        <button
+          className="btn btn-secondary"
+          onClick={handleCreateRoom}
+          disabled={!serverPlayerName}
+        >
           Create Room
         </button>
       </div>
