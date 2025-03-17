@@ -146,13 +146,14 @@ export default function Game({ playerName }: { playerName: string }) {
                           .find(([card]) => card === index)?.[1]
                           .toString() || "?"
                       }
+                      isClickable={false}
                     />
                   </li>
                 );
               } else {
                 return (
                   <li key={index} onClick={() => revealMiddleCard(index)}>
-                    <Card card="?" />
+                    <Card card="?" isClickable={isItYourTurn()} />
                   </li>
                 );
               }
@@ -167,6 +168,7 @@ export default function Game({ playerName }: { playerName: string }) {
                   name={name}
                   numberOfCards={count}
                   revealOtherPlayerCard={revealOtherPlayerCard}
+                  isClickable={isItYourTurn()}
                 />
               </li>
             ))}
