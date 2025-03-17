@@ -33,6 +33,11 @@ export default function Game({ playerName }: { playerName: string }) {
   const [gameInfo, setGameInfo] = useState<GameInfo | undefined>(undefined);
 
   const isItYourTurn = (): boolean => {
+    if (
+      gameInfo?.revealedCards.length === 2 &&
+      gameInfo?.revealedCards[0].card != gameInfo?.revealedCards[1].card
+    )
+      return false;
     const playerIndex = gameInfo?.players.findIndex(
       (player) => player.name === playerName
     );
