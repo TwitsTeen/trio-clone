@@ -11,9 +11,11 @@ const app = express();
 const port: number = 3000;
 
 const allowedOrigins = [
-  "http://localhost:5173", // From Browser
-  "http://vite-app:5173", // From Docker
+  "http://localhost:5173", // From localhost
+  process.env.CLIENT_URL,
 ];
+
+console.log("Allowed Origins: ", allowedOrigins);
 
 const corsOptions = {
   origin: (origin: any, callback: any) => {
