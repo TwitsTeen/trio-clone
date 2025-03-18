@@ -44,12 +44,7 @@ npm run dev
 ### For the Vite React App (`.env`):
 
 ```env
-VITE_API_URL=http://localhost:3000
-```
-
-### For the Bun API Server (`.env`):
-
-```env
+VITE_API_BASE_URL=http://localhost:3000
 CLIENT_URL=http://localhost:5173
 ```
 
