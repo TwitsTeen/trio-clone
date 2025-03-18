@@ -28,37 +28,10 @@ router.get("/", (req: Request, res: Response) => {
   }
 
   try {
-    const playersCards = room.game?.playerCards.get(player);
-    const centerCards = room.game?.centerCards.length;
-    const players = room.game?.players;
-    const cardsRemaining: Record<string, number> = {};
-    const playerTurn = room.game?.currentPlayerTurn;
-    const revealedCards = room.game?.revealedCards;
-    const playerPointsList = room.game?.playerPoints
-      ? Array.from(room.game.playerPoints)
-      : [];
-    const revealedCenterCards = Array.from(
-      room.game?.revealedCenterCards.entries() || []
-    );
-    const winner = room.game?.winner;
-
-    players?.forEach((player) => {
-      const cards = room.game?.playerCards.get(player) || [];
-      cardsRemaining[player.name] = cards.length;
-    });
+    const gameInfos = room.game?.getGameInfo(player);
     res.status(200).json({
       message: "Current game status",
-      gameInfos: {
-        playersCards: playersCards,
-        centerCards: centerCards,
-        players: players,
-        cardsRemaining: cardsRemaining,
-        playerTurn: playerTurn,
-        revealedCards: revealedCards,
-        playerPointsList: playerPointsList,
-        revealedCenterCards: revealedCenterCards,
-        winner: winner,
-      },
+      gameInfos: gameInfos,
     });
   } catch (e) {
     res

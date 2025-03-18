@@ -10,23 +10,16 @@ interface RevealedCard {
   player: string;
 }
 
-interface Player {
-  name: string;
-  id: string;
-}
-
-type PlayerPointsList = [Player, number][];
-
 interface GameInfo {
-  playersCards: number[];
-  centerCards: number;
-  players: Player[];
-  cardsRemaining: Record<string, number>;
-  playerTurn: number;
-  revealedCards: RevealedCard[];
-  playerPointsList: PlayerPointsList;
-  revealedCenterCards: [number, number][];
-  winner: string | undefined;
+  players: String[]; // The list of player's name in the lobby
+  numberOfCenterCards: number; // The number of cards in the center
+  playerCards: number[]; // The list of cards for the player that requested the game
+  playerPoints: Record<string, number>; // The list of points for each player, indexed by the player's name
+  currentPlayerTurn: number; // The index of the player in the players array
+  revealedCards: RevealedCard[]; // The list of revealed cards
+  revealedCenterCards: Record<number, number>; // The list of revealed center cards, indexed by the card index
+  winner: string | undefined; // The name of the winner
+  cardsRemaining: Record<string, number>; // The number of cards remaining for each player
 }
 
 export default function Game({ playerName }: { playerName: string }) {
@@ -39,9 +32,9 @@ export default function Game({ playerName }: { playerName: string }) {
     )
       return false;
     const playerIndex = gameInfo?.players.findIndex(
-      (player) => player.name === playerName
+      (player) => player === playerName
     );
-    return playerIndex !== -1 && gameInfo?.playerTurn === playerIndex;
+    return playerIndex !== -1 && gameInfo?.currentPlayerTurn === playerIndex;
   };
 
   const revealMiddleCard = async (index: number): Promise<void> => {
@@ -105,6 +98,7 @@ export default function Game({ playerName }: { playerName: string }) {
         throw new Error(`HTTP error! status: ${response.status}`);
 
       const result = await response.json();
+      console.log(result);
       setGameInfo(result.gameInfos);
     } catch (e) {
       console.error("Error making GET request:", e);
@@ -139,30 +133,34 @@ export default function Game({ playerName }: { playerName: string }) {
 
           <h2>Center Cards:</h2>
           <ul className="flex gap-2 mx-auto items-center justify-center">
-            {Array.from({ length: gameInfo.centerCards }).map((_, index) => {
-              if (
-                gameInfo.revealedCenterCards.some(([card, _]) => card === index)
-              ) {
-                return (
-                  <li key={index}>
-                    <Card
-                      card={
-                        gameInfo.revealedCenterCards
-                          .find(([card]) => card === index)?.[1]
-                          .toString() || "?"
-                      }
-                      isClickable={false}
-                    />
-                  </li>
-                );
-              } else {
-                return (
-                  <li key={index} onClick={() => revealMiddleCard(index)}>
-                    <Card card="?" isClickable={isItYourTurn()} />
-                  </li>
-                );
+            {Array.from({ length: gameInfo.numberOfCenterCards }).map(
+              (_, index) => {
+                if (
+                  Object.entries(gameInfo.revealedCenterCards).find(
+                    ([card]) => Number(card) === index
+                  )
+                ) {
+                  return (
+                    <li key={index}>
+                      <Card
+                        card={
+                          Object.entries(gameInfo.revealedCenterCards)
+                            .find(([card]) => Number(card) === index)?.[1]
+                            .toString() || "?"
+                        }
+                        isClickable={false}
+                      />
+                    </li>
+                  );
+                } else {
+                  return (
+                    <li key={index} onClick={() => revealMiddleCard(index)}>
+                      <Card card="?" isClickable={isItYourTurn()} />
+                    </li>
+                  );
+                }
               }
-            })}
+            )}
           </ul>
 
           <h2>Cards Remaining:</h2>
@@ -181,9 +179,9 @@ export default function Game({ playerName }: { playerName: string }) {
 
           <h2>Your cards:</h2>
           <ul className="flex gap-2 mx-auto items-center justify-center">
-            {gameInfo.playersCards.map((card, index) => (
+            {gameInfo.playerCards.map((card, index) => (
               <li key={index}>
-                <Card card={card.toString()} />
+                <Card card={card.toString()} isClickable={false} />
               </li>
             ))}
           </ul>
@@ -203,11 +201,13 @@ export default function Game({ playerName }: { playerName: string }) {
 
           <h2>Players points:</h2>
           <ul className="flex gap-2 mx-auto items-center justify-center">
-            {gameInfo.playerPointsList.map(([player, points], index) => (
-              <li key={index}>
-                {player ? player.name : "Unknown"}: {points}
-              </li>
-            ))}
+            {Object.entries(gameInfo.playerPoints).map(
+              ([player, points], index) => (
+                <li key={index}>
+                  {player}: {points}
+                </li>
+              )
+            )}
           </ul>
 
           {/* The modal */}

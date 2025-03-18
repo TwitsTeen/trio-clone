@@ -13,10 +13,22 @@ const CARD_DISTRIBUTION = {
   6: { perPlayer: 5, center: 6 },
 } as const;
 
+export interface GameInfo {
+  players: String[]; // The list of player's name in the lobby
+  numberOfCenterCards: number; // The number of cards in the center
+  playerCards: number[]; // The list of cards for the player that requested the game
+  playerPoints: Record<string, number>; // The list of points for each player, indexed by the player's name
+  currentPlayerTurn: number; // The index of the player in the players array
+  revealedCards: RevealedCard[]; // The list of revealed cards
+  revealedCenterCards: Record<number, number>; // The list of revealed center cards, indexed by the card index
+  winner: string | undefined; // The name of the winner
+  cardsRemaining: Record<string, number>; // The number of cards remaining for each player
+}
+
 export default class Game {
   players: Player[];
-  number_center_cards: number;
-  number_cards_per_player: number;
+  numberOfCenterCards: number;
+  numberOfCardsPerPlayer: number;
   playerCards: Map<Player, number[]> = new Map();
   playerPoints: Map<Player, number> = new Map();
   centerCards: number[] = [];
@@ -34,8 +46,8 @@ export default class Game {
     if (!config) throw new Error("Invalid player amount");
 
     this.players = players;
-    this.number_cards_per_player = config.perPlayer;
-    this.number_center_cards = config.center;
+    this.numberOfCardsPerPlayer = config.perPlayer;
+    this.numberOfCenterCards = config.center;
     this.deck = this.generateDeck();
 
     this.dealCards();
@@ -61,10 +73,10 @@ export default class Game {
   private dealCards(): void {
     this.shuffleDeck();
     this.players.forEach((player) => {
-      const hand = this.deck.splice(0, this.number_cards_per_player);
+      const hand = this.deck.splice(0, this.numberOfCardsPerPlayer);
       this.playerCards.set(player, hand);
     });
-    this.centerCards = this.deck.splice(0, this.number_center_cards);
+    this.centerCards = this.deck.splice(0, this.numberOfCenterCards);
     this.sortCards();
   }
 
@@ -175,5 +187,39 @@ export default class Game {
 
   private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  public getGameInfo(player: Player): GameInfo {
+    const playersCards = this.playerCards.get(player);
+    const numberOfCenterCards = this.centerCards.length;
+    const players = this.players.map((p) => p.name);
+    const cardsRemaining: Record<string, number> = {};
+    const playerTurn = this.currentPlayerTurn;
+    const revealedCards = this.revealedCards;
+    const playerPointsList: Record<string, number> = Object.fromEntries(
+      Array.from(this.playerPoints.entries()).map(([player, points]) => [
+        player.name,
+        points,
+      ])
+    );
+    const winner = this.winner;
+    const revealedCenterCards = Object.fromEntries(this.revealedCenterCards);
+
+    this.players.forEach((player) => {
+      const cards = this.playerCards.get(player) || [];
+      cardsRemaining[player.name] = cards.length;
+    });
+
+    return {
+      players: players,
+      numberOfCenterCards: numberOfCenterCards,
+      playerCards: playersCards!,
+      playerPoints: playerPointsList,
+      currentPlayerTurn: playerTurn,
+      revealedCards: revealedCards,
+      revealedCenterCards: revealedCenterCards,
+      winner: winner,
+      cardsRemaining: cardsRemaining,
+    };
   }
 }
