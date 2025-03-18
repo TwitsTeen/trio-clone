@@ -23,7 +23,7 @@ router.post("/create", (req: Request, res: Response) => {
   const room = new Room();
   room.players.push(player);
   rooms.push(room);
-  res.json({ message: "Room created successfully", room: room });
+  res.json({ message: "Room created successfully", room: room.getRoomData() });
 });
 
 /**
@@ -33,28 +33,38 @@ router.post("/join/:id", (req: Request, res: Response) => {
   const id = req.params.id ? req.params.id : "0";
 
   if (id === "0") {
-    res.json({ message: "Please enter a valid room id" });
+    res.status(403).json({ message: "Please enter a valid room id" });
   }
 
   let playerId = req.cookies.playerId;
   const player = findById(playerId);
 
   if (player === undefined) {
-    res.json({ message: "Please register before joining a room" });
+    res.status(403).json({ message: "Please register before joining a room" });
     return;
   }
 
   const room = findRoomById(id);
   if (!room) {
-    res.json({ message: "There are no room with that id" });
+    res.status(403).json({ message: "There are no room with that id" });
     return;
   }
 
   if (room.players.some((p) => p.id === playerId)) {
-    return res.json({ message: "Player already in the room" });
+    return res.status(403).json({ message: "Player already in the room" });
   }
+
+  if (room.players.some((p) => p.name === player.name)) {
+    return res.status(403).json({
+      message: "A player with that name is already in the room",
+    });
+  }
+
   room.players.push(player);
-  res.json({ message: "Successfully joined the room", room: room });
+  res.status(200).json({
+    message: "Successfully joined the room",
+    room: room.getRoomData(),
+  });
 });
 
 /**
@@ -113,17 +123,19 @@ router.get("/current", (req: Request, res: Response) => {
   const player = findById(playerId);
 
   if (player === undefined) {
-    res.json({ message: "No player with that ID" });
+    res.status(400).json({ message: "No player with that ID" });
     return;
   }
 
   const room = findRoomWithPlayer(playerId);
   if (!room) {
-    res.json({ message: "The user is not in a room" });
+    res.status(400).json({ message: "The user is not in a room" });
     return;
   }
 
-  res.status(200).json({ message: "Found the player in a room", room: room });
+  res
+    .status(200)
+    .json({ message: "Found the player in a room", room: room.getRoomData() });
 });
 
 /**

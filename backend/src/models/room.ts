@@ -2,6 +2,12 @@ import { deleteRoom, getNextRoomId } from "../services/roomService";
 import Game from "./game";
 import type Player from "./player";
 
+export interface RoomData {
+  id: string;
+  players: string[];
+  isInGame: boolean;
+}
+
 export default class Room {
   id: string;
   players: Player[];
@@ -11,6 +17,14 @@ export default class Room {
     this.players = [];
     const nextId = getNextRoomId();
     this.id = nextId ? nextId : "0"; // There shouldn't be any case where nextId is undefined or null though i need to make the ts compiler happy
+  }
+
+  getRoomData(): RoomData {
+    return {
+      id: this.id,
+      players: this.players.map((player) => player.name),
+      isInGame: this.game !== undefined,
+    };
   }
 
   start() {

@@ -34,7 +34,7 @@ export default function Menu({
       fetchRoom();
     }
 
-    const interval = setInterval(fetchRoom, 10000);
+    const interval = setInterval(fetchRoom, 5000);
 
     return () => clearInterval(interval);
   }, [serverPlayerName]);
@@ -139,11 +139,10 @@ export default function Menu({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
-      const playerNames = result.room.players.map((player: any) => player.name);
       if (result.room) {
-        setRoom({ id: result.room.id, players: playerNames });
+        setRoom({ id: result.room.id, players: result.room.players });
       }
-      if (result.room.game) {
+      if (result.room.isInGame) {
         setIsInGame(true);
       }
     } catch (e) {

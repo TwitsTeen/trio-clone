@@ -98,7 +98,6 @@ export default function Game({ playerName }: { playerName: string }) {
         throw new Error(`HTTP error! status: ${response.status}`);
 
       const result = await response.json();
-      console.log(result);
       setGameInfo(result.gameInfos);
     } catch (e) {
       console.error("Error making GET request:", e);
